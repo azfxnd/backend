@@ -1,5 +1,3 @@
-// === backend.js ===
-
 const express = require("express");
 const app = express();
 app.use(express.json());
@@ -16,8 +14,6 @@ app.post("/playerJoin", (req, res) => {
   }
 
   const servers = universeServers[universeId];
-
-  // Find the best server under capacity
   let target = null;
 
   servers.forEach(s => {
@@ -28,7 +24,6 @@ app.post("/playerJoin", (req, res) => {
     }
   });
 
-  // If all servers are full, signal the frontend to generate more
   if (!target) {
     return res.status(428).json({ message: "All servers full, need to generate more." });
   }
@@ -66,6 +61,14 @@ app.get("/serverCount", (req, res) => {
 
   const count = universeServers[universeId]?.length || 0;
   res.json({ count });
+});
+
+app.get("/serverList", (req, res) => {
+  const universeId = req.query.universeId;
+  if (!universeId) return res.sendStatus(400);
+
+  const servers = universeServers[universeId] || [];
+  res.json({ servers });
 });
 
 app.listen(3000, () => console.log("Backend running on http://localhost:3000"));
