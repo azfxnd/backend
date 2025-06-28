@@ -17,9 +17,21 @@ app.post("/playerJoin", (req, res) => {
 
   const servers = universeServers[universeId];
 
-  const target = servers.reduce((best, s) => {
-    return s.players.length < 50 && s.players.length > best.players.length ? s : best;
-  }, { players: [], code: servers[0].code });
+  // Find the best server under capacity
+  let target = null;
+
+  servers.forEach(s => {
+    if (s.players.length < 50) {
+      if (!target || s.players.length > target.players.length) {
+        target = s;
+      }
+    }
+  });
+
+  // If all servers are full, signal the frontend to generate more
+  if (!target) {
+    return res.status(428).json({ message: "All servers full, need to generate more." });
+  }
 
   target.players.push(playerId);
   res.json({ serverCode: target.code });
